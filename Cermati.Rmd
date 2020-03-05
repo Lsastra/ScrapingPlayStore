@@ -1,0 +1,101 @@
+---
+title: "Cermati"
+author: "Winata"
+date: "March 5, 2020"
+output: html_document
+---
+#Melakukan pembersihan data di R
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 9999)
+rm(list=ls())
+```
+
+Meload library yang dibutuhkan
+```{r}
+library(tidyr) #Digunakan untuk transformasi data
+library(lubridate) #Digunakan untuk mengolah format tanggal
+```
+
+Mempersiapkan data
+```{r}
+komen <- read.csv("data_input/Komen Play Store Cermati.csv") #Membaca data yang diperlukan
+df_komen <- komen #Mmebuat file baru berdasarkan data yang telah di baca
+```
+
+Tahap pembersihan data
+Bila dilihat dari format data yang ada, maka variabel "Pengguna", "Komen" dan "Tanggal" perlu diubah ke format character.
+```{r}
+#dcharacter berarti list variabel character
+dcharacter <- c("Pengguna",
+                "Komen",
+                "Tanggal")
+```
+
+Note : Format variable Tanggal ikut diubah menjadi karakter karena akan diolah terlebih dahulu.
+
+Penerapan format data
+```{r}
+df_komen[, dcharacter] <- lapply(df_komen[, dcharacter], as.character)
+```
+
+Bila dilihat dari data yang diperoleh dari mining di python, format tanggal menggunakan penulisan Bahasa.
+Oleh karena itu kita perlu mengubahnya ke format English.
+
+```{r}
+df_komen <- separate(df_komen, col = Tanggal, into = c("Hari", "Bulan", "Tahun"), sep = " ") #Data dipisahkan agar dapat fokus dibagian Bulan
+```
+
+Setelah variabel "Bulan" didapatkan maka kita rubah format penulisannya. 
+```{r}
+df_komen$Bulan <- sapply(as.character(df_komen$Bulan), switch,
+                         "Januari" = "January",
+                         "Februari" = "February",
+                         "Maret" = "March",
+                         "April" = "April",
+                         "Mei" = "May",
+                         "Juni" = "June",
+                         "Juli" = "July",
+                         "Agustus" = "August",
+                         "September" = "September",
+                         "Oktober" = "October",
+                         "November" = "November",
+                         "Desember" = "December")
+                         
+```
+
+Setelah itu data digabungkan kembali.
+```{r}
+df_komen <- unite(df_komen, Tanggal, Tahun, Bulan, Hari, sep = "-")
+```
+
+Pengubahan format "Tanggal" yang semulanya character menjadi date, menggunakan library('lubridate')
+```{r}
+df_komen$Tanggal <- ymd(df_komen$Tanggal)
+```
+
+Pengubahan juga dilakukan pada variabel "Bintang", dilakukan pengurutan level isi dari variabel tersebut.
+```{r}
+levels(df_komen$Bintang) <- c("Diberi rating 1 bintang dari 5 bintang Diberi", 
+                              "Diberi rating 2 bintang dari 5 bintang Diberi",
+                              "Diberi rating 3 bintang dari 5 bintang Diberi",
+                              "Diberi rating 4 bintang dari 5 bintang Diberi",
+                              "Diberi rating 5 bintang dari 5 bintang Diberi")
+```
+
+
+Melakukan save data yang telah diolah.
+```{r}
+write.csv(df_komen, "data_output/Analisa Sentimen Applikasi Cermati by Winata.csv", row.names = F)
+```
+
+
+Data telah selesai dibersihkan.
+Selanjutnya akan dilakukan tahap visualisasi.
+Silahkan klik link ini.
+
+# Link
+[Winata Syahputra](https://www.linkedin.com/in/winata-syahputra/)
+[Github Business Intelligence Analyst test Cermati](https://github.com/Lsastra/ScrapingPlayStore)
+[visualisasi di DataStudio](https://datastudio.google.com/u/1/reporting/c8dc96b0-025d-4e85-998e-f88d91d1fb31/page/VgD)
